@@ -28,6 +28,7 @@ static struct file_operations fops = {
 
 /*Global variables*/
 int a, b, sum;
+char a_buffer[10], b_buffer[10];
 
 static int __init init_solution(void)
 {
@@ -43,6 +44,7 @@ static int __init init_solution(void)
 
 static void __exit cleanup_solution(void)
 {
+    unregister_chrdev(DEVICE_MAJOR, DEVICE_NAME);
     printk(KERN_INFO "Cleanup file_interface_driver module.\n");
 }
 
@@ -50,14 +52,30 @@ module_init (init_solution);
 module_exit (cleanup_solution);
 
 /*Interface functions prototypes*/
-static int open_interface (struct inode *, struct file *)
+static int open_interface (struct inode *inode, struct file *filp)
 {
     printk(KERN_INFO "Opening device: %s.\n", DEVICE_NAME);
     return 0;
 }
 
-static int release_interface (struct inode *, struct file *)
+static int release_interface (struct inode *inode, struct file *filp)
 {
     printk(KERN_INFO "Closing device: %s.\n", DEVICE_NAME);
     return 0;
+}
+
+static ssize_t read_interface (struct file *filp, char *buf, size_t size, loff_t *off)
+{
+    printk(KERN_INFO "Read device: %s.\n", DEVICE_NAME);
+    int error_count = 0;
+    
+    return error_count;
+}
+
+static ssize_t write_interface (struct file *filp, const char *buf, size_t size, loff_t *off)
+{
+    printk(KERN_INFO "Write device: %s.\n", DEVICE_NAME);
+    int error_counter = 0;
+    
+    return error_counter;
 }
