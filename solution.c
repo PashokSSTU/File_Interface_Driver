@@ -12,11 +12,11 @@ MODULE_LICENSE("GPL");
 #define DEVICE_NAME "solution_node"
 #define DEVICE_MAJOR 240
 
-/*Interface functions*/
-ssize_t read_interface (struct file *, char *, size_t, loff_t *);
-ssize_t write_interface (struct file *, const char *, size_t, loff_t *);
-int open_interface (struct inode *, struct file *);
-int release_interface (struct inode *, struct file *);
+/*Interface functions prototypes*/
+static ssize_t read_interface (struct file *, char *, size_t, loff_t *);
+static ssize_t write_interface (struct file *, const char *, size_t, loff_t *);
+static int open_interface (struct inode *, struct file *);
+static int release_interface (struct inode *, struct file *);
 
 /*Struct of pointers to interface functions*/
 static struct file_operations fops = {
@@ -31,7 +31,13 @@ int a, b, sum;
 
 static int __init init_solution(void)
 {
-    printk(KERN_INFO "Init file_interface_driver module.\n");
+    int result = register_chrdev(DEVICE_MAJOR, DEVICE_NAME, &fops);
+    if(result < 0)
+    {
+        printk(KERN_ALERT "Init file_interface_driver module.\n");
+        return result;
+    }
+    
     return 0;
 }
 
@@ -42,3 +48,16 @@ static void __exit cleanup_solution(void)
 
 module_init (init_solution);
 module_exit (cleanup_solution);
+
+/*Interface functions prototypes*/
+static int open_interface (struct inode *, struct file *)
+{
+    printk(KERN_INFO "Opening device: %s.\n", DEVICE_NAME);
+    return 0;
+}
+
+static int release_interface (struct inode *, struct file *)
+{
+    printk(KERN_INFO "Closing device: %s.\n", DEVICE_NAME);
+    return 0;
+}
