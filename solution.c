@@ -6,7 +6,7 @@
 #include <linux/printk.h>
 
 #define DEVICE_NAME     "solution_node"
-#define DEVICE_MAJOR    510
+#define DEVICE_MAJOR    240
 #define FIRST_MINOR     0
 #define MAX_MINORS      1
 
