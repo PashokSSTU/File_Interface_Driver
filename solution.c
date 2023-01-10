@@ -21,7 +21,7 @@ static int open_interface (struct inode *, struct file *);
 static int release_interface (struct inode *, struct file *);
 
 /*Global variables*/
-int a, b, sum;
+int a, b;
 char a_buffer[10], b_buffer[10];
 
 struct my_device_data 
@@ -90,18 +90,47 @@ static int release_interface (struct inode *inode, struct file *filp)
     return 0;
 }
 
-static ssize_t read_interface (struct file *filp, char *buf, size_t size, loff_t *off)
+static ssize_t read_interface(struct file *filp, char *buf, size_t size, loff_t *off)
 {
-    printk(KERN_INFO "Read device: %s.\n", DEVICE_NAME);
-    int error_count = 0;
-    
-    return error_count;
+	printk(KERN_INFO "Read device: %s.\n", DEVICE_NAME);
+	int error_count = 0;
+	char data[200];
+	int len;
+
+
+	len = sprintf(data, "%d\n", a + b);
+	error_count = copy_to_user(buf, data, len);
+
+	if (error_count) {
+		return -EFAULT;
+	}
+
+	return len;
 }
 
 static ssize_t write_interface (struct file *filp, const char *buf, size_t size, loff_t *off)
 {
-    printk(KERN_INFO "Write device: %s.\n", DEVICE_NAME);
-    int error_counter = 0;
-    
-    return error_counter;
+	printk(KERN_INFO "Writing to device: %s.\n", DEVICE_NAME);
+	int _result = 0;
+	char data[200];
+	int data_size = 0;
+
+	if (size > sizeof(data))
+    		data_size = sizeof(data);
+	else
+		data_size = size;
+
+	_result = copy_from_user(data, buf, data_size);
+	if (_result != 0)
+	{
+		printk(KERN_ALERT "Error while copying data from user to kernel space.\n");
+		return -EFAULT;
+	}
+
+	sscanf(data, "%d %d", &a, &b);
+	_result = a + b;
+	printk(KERN_INFO "Values of a: %d, b: %d, result: %d\n", a, b, +_result);
+
+	return data_size;
 }
+
